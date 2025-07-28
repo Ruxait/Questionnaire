@@ -125,6 +125,7 @@ const quizData = [
 ]
 
 let currentQuestion = 0
+let userAnswers = []
 
 function renderQuestion() {
   document.getElementById('quizContainer').style.display = 'grid'
@@ -174,18 +175,32 @@ function renderQuestion() {
         input.focus()
         input.addEventListener('keydown', e => {
           if (e.key === 'Enter' && input.value.trim() !== '') {
+            userAnswers.push({
+              question: data.question,
+              answer: input.value.trim(),
+            })
             nextQuestion()
           }
         })
         done.addEventListener('click', () => {
           if (input.value.trim() !== '') {
+            userAnswers.push({
+              question: data.question,
+              answer: input.value.trim(),
+            })
             nextQuestion()
           }
         })
       }
     } else {
       answerEl.textContent = ans.text
-      answerEl.onclick = () => nextQuestion()
+      answerEl.onclick = () => {
+        userAnswers.push({
+          question: data.question,
+          answer: ans.text,
+        })
+        nextQuestion()
+      }
     }
     container.appendChild(answerEl)
   })
@@ -200,6 +215,9 @@ function nextQuestion() {
 
 function showFinal() {
   const container = document.getElementById('quizContainer')
+  const emailInput = document.querySelector('.email-input')
+  const userEmail = emailInput ? emailInput.value.trim() : ''
+  sendToBitrix(userEmail)
   container.innerHTML = `
     <div class="final-screen">
       <div class="top-left">
@@ -223,3 +241,25 @@ function startQuiz() {
 }
 
 document.getElementById('startScreen').style.display = 'flex'
+
+function sendToBitrix(email) {
+  const webhookURL = 'https://zotmanpro.bitrix24.ru/rest/11/ijpaqzfiaju1kkx1/crm.lead.add.json'
+
+  const leadData = {
+    fields: {
+      TITLE: 'Опросник Zotman',
+      NAME: 'Новый клиент',
+      EMAIL: [{ VALUE: email, VALUE_TYPE: 'WORK' }],
+      COMMENTS: userAnswers.map(a => `${a.question}: ${a.answer}`).join('\n'),
+    },
+  }
+
+  fetch(webhookURL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(leadData),
+  })
+    .then(res => res.json())
+    .then(data => console.log('Успешно в Bitrix:', data))
+    .catch(err => console.error('Ошибка Bitrix:', err))
+}
