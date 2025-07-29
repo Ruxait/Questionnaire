@@ -242,15 +242,38 @@ function startQuiz() {
 
 document.getElementById('startScreen').style.display = 'flex'
 
+const fieldMapping = {
+  'поехали! сколько тебе лет?': 'UF_CRM_1753716036201',                            
+  'ты с марса или с венеры?': 'UF_CRM_1753716064902',                           
+  'чем ты занимаешься, где работаешь?': 'UF_CRM_1753716064903',            
+  'почему ты покупаешь нашу пиццулю?': 'UF_CRM_1753716064904',             
+  'как часто ты заказываешь пиццу?': 'UF_CRM_1753716064905',          
+  'какие виды пиццы предпочитаешь?': 'UF_CRM_1753716064906',               
+  'почему ты выбираешь нашу пиццулю?': 'UF_CRM_1753716064907',          
+  'где чаще всего заказываешь пиццу?': 'UF_CRM_1753716064908',            
+  'пиццы каких брендов ты еще покупаешь?': 'UF_CRM_1753716064909',       
+  'как узнаешь о новых пиццериях?': 'UF_CRM_1753716064910',          
+  'где удобнее получать инфу о новинках zotman?': 'UF_CRM_1753716064911',
+  'финишная прямая! какие акции могут тебя заинтересовать?': 'UF_CRM_1753716064912' 
+}
+
 function sendToBitrix(email) {
   const webhookURL = 'https://zotmanpro.bitrix24.ru/rest/11/ijpaqzfiaju1kkx1/crm.lead.add.json'
+
+  const customFields = {}
+  userAnswers.forEach(entry => {
+    const fieldCode = fieldMapping[entry.question]
+    if (fieldCode) {
+      customFields[fieldCode] = entry.answer
+    }
+  })
 
   const leadData = {
     fields: {
       TITLE: 'Опросник Zotman',
       NAME: 'Новый клиент',
       EMAIL: [{ VALUE: email, VALUE_TYPE: 'WORK' }],
-      COMMENTS: userAnswers.map(a => `${a.question}: ${a.answer}`).join('\n'),
+      ...customFields
     },
   }
 
