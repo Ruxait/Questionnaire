@@ -210,6 +210,10 @@ body {
   max-width: 200px;
 }
 
+.final-screen .bottom-right .highlight--small {
+  font-size: 28px;
+}
+
 .promo {
   background-color: #ff9aa2;
   display: inline-block;

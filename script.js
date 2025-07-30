@@ -230,6 +230,7 @@ function showFinal() {
       <div class="bottom-right">
         <div class="highlight">держи скидочку!</div>
         <div class="promo">промокод на -35%</div>
+        <div class="highlight highlight--small">уже на почте</div>
       </div>
     </div>
   `
